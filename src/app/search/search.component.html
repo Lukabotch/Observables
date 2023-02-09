@@ -1,0 +1,4 @@
+<div class="result">
+  <input type="text" [formControl]="items" placeholder="type movie" />
+  <div *ngFor="let data of movieName">{{'Movie Name:' + ' ' + data.name }}</div>
+</div>

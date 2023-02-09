@@ -1,0 +1,8 @@
+<div class="scrollable" #scrollableDiv>
+  <div class="divScroll" *ngFor="let movie of movies; let i = index">
+    {{ i + 1 + "." + " " + movie }}
+  </div>
+  <div class="loader" *ngIf="loading">
+    Loading...
+  </div>
+</div>
