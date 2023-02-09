@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { ScrollService } from '../services/scroll.service';
 import { ViewportScroller } from '@angular/common';
-import { delay, of } from 'rxjs';
+import { delay, of,Subject,takeUntil } from 'rxjs';
 
 
 @Component({
@@ -15,18 +15,15 @@ export class ScrollComponent {
   get load() {
     return this.scrollService.loadMore();
   }
-  container: HTMLElement;
   movies: string[] = [];
   loading: boolean = false;
+  obs$ = new Subject<void>();
   constructor(
     private scrollService: ScrollService,
     public viewportScroller: ViewportScroller,
-    private elementRef: ElementRef
-  ) {
-    this.container = this.elementRef.nativeElement;
-  }
+  ) {}
   ngOnInit() {
-    this.load.subscribe((x) => this.movies.push(...x));
+    this.load.pipe(takeUntil(this.obs$)).subscribe((x) => this.movies.push(...x));
   }
   ngAfterViewInit() {
     if (this.scrollableDiv) {
@@ -41,11 +38,16 @@ export class ScrollComponent {
         ) {
           this.loading = true;
           setTimeout(() => {
-            this.load.subscribe((x) => (this.movies = x));
+            this.load.pipe(takeUntil(this.obs$)).subscribe((x) => (this.movies = x));
             this.loading = false;
           }, 500);
         }
       });
     }
+  }
+    ngOnDestroy() {
+    this.obs$.next()
+    this.obs$.complete()
+    this.scrollService.basicItems = [];
   }
 }
